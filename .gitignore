@@ -1,1 +1,98 @@
-a.out
+package unl.soc;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+
+/**
+ * Processes a comma-separated value (CSV) file of win/loss data from the 2011
+ * National League MLB season. It sorts the teams (best record to worst) and
+ * prints a report to the standard output.
+ * 
+ * @author Femi Odulate
+ * @Date 2024/02/07
+ *
+ */
+public class Baseball {
+
+	private static final String FILE_NAME = "data/mlb_nl_2011.csv";
+
+	/**
+	 * This method loads MLB team data from the CSV file
+	 * specified by {@link #FILE_NAME} and instantiates 
+	 * and returns a list of {@link Team}s.
+	 * 
+	 * @return
+	 */
+	public static List<Team> loadData() {
+
+		List<Team> teams = new ArrayList<>();
+		
+		Scanner s = null;
+		try {
+			s = new Scanner(new File(FILE_NAME));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		int i = 0;
+		String team = "";
+		while (s.hasNextLine()) {
+			team = s.nextLine();
+			String tokens[] = team.split(",");
+			Team a1 = new Team(tokens[0], Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
+			teams.add(a1);
+			i++;
+		}
+		s.close();
+		return teams;
+	}
+	
+	/**
+	 * This method loads MLB team data from the CSV file
+	 * specified by {@link #FILE_NAME} and instantiates 
+	 * and inputs a list of {@link Team}s into the specified
+	 * file location {@link #outputFileName}.
+	 * 
+	 * @return
+	 */
+	public static void persistData(List<Team> teams, String outputFileName) {
+		
+		try {
+			PrintWriter pw = new PrintWriter(outputFileName);
+			pw.write("Teams: ");
+			for (Team t : teams) {
+				pw.println(t);
+			}
+			pw.close();
+			} catch (FileNotFoundException fnfe) {
+			  throw new RuntimeException(fnfe);
+			}
+	}
+
+
+	
+	public static void main(String args[]) {
+
+		List<Team> teams = loadData();
+
+		System.out.println("Teams: ");
+		for (Team t : teams) {
+			System.out.println(t);
+		}
+
+		Collections.sort(teams, Team.teamByWinPercentage);
+
+		System.out.println("\n\nSorted Teams: ");
+		for (Team t : teams) {
+			System.out.println(t);
+		}
+		
+		persistData(teams, "outputFile.txt");
+
+	}
+
+}
